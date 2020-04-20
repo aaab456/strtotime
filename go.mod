@@ -1,3 +1,3 @@
-module github.com/carmo-evan/strtotime
+module github.com/aaab456/strtotime
 
 go 1.12
