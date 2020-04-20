@@ -16,6 +16,14 @@ import (
 func Parse(s string, relativeTo int64) (int64, error) {
 	r := &result{}
 	formats := formats()
+	resTime, err := parse(s, r, formats, relativeTo)
+	if err != nil || resTime == nil {
+		return 0, err
+	}
+	return resTime.Unix(), err
+}
+
+func parse(s string, r *result, formats []format, relativeTo int64) (*time.Time, error) {
 	for {
 		noMatch := true
 		for _, format := range formats {
@@ -32,7 +40,7 @@ func Parse(s string, relativeTo int64) (int64, error) {
 			err := format.callback(r, match[1:]...)
 
 			if err != nil {
-				return 0, err
+				return nil, err
 			}
 
 			s = strings.TrimSpace(re.ReplaceAllString(s, ""))
@@ -40,13 +48,24 @@ func Parse(s string, relativeTo int64) (int64, error) {
 		}
 
 		if len(s) == 0 {
-			return r.toDate(relativeTo).Unix(), nil
+			resTime := r.toDate(relativeTo)
+			return &resTime, nil
 		}
 
 		if noMatch {
-			return 0, fmt.Errorf(`strtotime: Unrecognizable input: "%v"`, s)
+			return nil, fmt.Errorf(`strtotime: Unrecognizable input: "%v"`, s)
 		}
 	}
+}
+
+func ParseTime(s string, relativeTo int64) (*time.Time, error) {
+	r := &result{}
+	formats := formats()
+	resTime, err := parse(s, r, formats, relativeTo)
+	if err != nil || resTime == nil {
+		return nil, err
+	}
+	return resTime, err
 }
 
 //processMeridian converts 12 hour format type to 24 hour format

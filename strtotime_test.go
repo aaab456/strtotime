@@ -110,6 +110,20 @@ func TestParse(t *testing.T) {
 	}
 }
 
+func TestParseTime(t *testing.T) {
+	for _, tt := range parseTests {
+		t.Run(tt.in, func(t *testing.T) {
+			r, err := ParseTime(tt.in, now.Unix())
+			if err != nil && tt.success {
+				t.Fatal(err)
+			}
+			if r != nil && r.Unix() != tt.out && tt.success {
+				t.Errorf("Result should have been %v, but it was %v", tt.out, r)
+			}
+		})
+	}
+}
+
 func TestProcessMeridian(t *testing.T) {
 	h := processMeridian(12, "am")
 	if h != 0 {
